@@ -1,0 +1,138 @@
+version "4.2.4"
+
+Class ReplacementPool
+{
+	Class<Actor> Replacee;
+	Array<Class<Actor> > Replacements;
+
+	static ReplacementPool Create( Class<Actor> Replacee )
+	{
+		ReplacementPool n = new("ReplacementPool");
+		n.Replacee = Replacee;
+		n.Replacements.Clear();
+		if ( mxm_keepvanilla ) n.Replacements.Push(null); // equivalent to "no replacement"
+		return n;
+	}
+
+	void AddReplacement( Class<Actor> Replacement )
+	{
+		for ( int i=0; i<Replacements.Size(); i++ )
+			if ( Replacements[i] == Replacement ) return;
+		Replacements.Push(Replacement);
+	}
+
+	bool HasReplacement( Class<Actor> Replacement )
+	{
+		for ( int i=0; i<Replacements.Size(); i++ )
+			if ( Replacements[i] == Replacement ) return true;
+		return false;
+	}
+
+	Class<Actor> GetReplacement( int index )
+	{
+		return Replacements[index];
+	}
+}
+
+Class MixAndMatch : EventHandler
+{
+	Array<ReplacementPool> ReplacementPools;
+	bool reentrant;
+	override void OnRegister()
+	{
+		reentrant = true;
+		// populate replacement pools
+		Class<Actor> CReplacee, CReplacement;
+		for ( int i=0; i<AllActorClasses.Size(); i++ )
+		{
+			// check validity
+			let a = GetDefaultByType(AllActorClasses[i]);
+			if ( a.bISMONSTER && !mxm_monsters ) continue;
+			else if ( ((a is 'Weapon') || (a is 'Ammo')) && !mxm_weapons ) continue;
+			else if ( (a is 'Inventory') && !mxm_items ) continue;
+			else if ( !mxm_others ) continue;
+			// check if it already does have a replacement
+			let r = Actor.GetReplacement(AllActorClasses[i]);
+			if ( r && (r != AllActorClasses[i]) )
+			{
+				CReplacee = AllActorClasses[i];
+				CReplacement = r;
+			}
+			else
+			{
+				CReplacee = Actor.GetReplacee(AllActorClasses[i]);
+				CReplacement = AllActorClasses[i];
+				if ( (CReplacee == null) || (CReplacee == CReplacement) ) continue;
+				// safeguard, don't add non-slotnumber weapons to the pool
+				if ( CReplacement is 'Weapon' )
+				{
+					let d = GetDefaultByType((Class<Weapon>)(CReplacement));
+					if ( (d.SlotNumber < 0) || (d.SlotNumber > 9) )
+					{
+						if ( developer > 2 )
+							Console.Printf("Mix'n'Match: Skipping Weapon %s as it has no slot number.",CReplacement.GetClassName());
+						continue;
+					}
+				}
+			}
+			int found = -1;
+			for ( int j=0; j<ReplacementPools.Size(); j++ )
+			{
+				if ( ReplacementPools[j].Replacee != CReplacee ) continue;
+				found = j;
+				break;
+			}
+			if ( found == -1 )
+			{
+				ReplacementPool n = ReplacementPool.Create(CReplacee);
+				n.AddReplacement(CReplacement);
+				ReplacementPools.Push(n);
+				continue;
+			}
+			if ( ReplacementPools[found].HasReplacement(CReplacement) ) continue;
+			ReplacementPools[found].AddReplacement(CReplacement);
+		}
+		reentrant = false;
+		if ( developer <= 2 ) return;
+		Console.Printf("Mix'n'Match: %d replacement pools populated.",ReplacementPools.Size());
+		// debug: print all pools containing more than one replacement
+		for ( int i=0; i<ReplacementPools.Size(); i++ )
+		{
+			if ( ReplacementPools[i].Replacements.Size() <= 1 ) continue;
+			Console.Printf(" Replacement Pool for %s:",ReplacementPools[i].Replacee.GetClassName());
+			for ( int j=0; j<ReplacementPools[i].Replacements.Size(); j++ )
+				if ( ReplacementPools[i].GetReplacement(j) )
+					Console.Printf("  %s",ReplacementPools[i].GetReplacement(j).GetClassName());
+		}
+	}
+
+	override void CheckReplacement( ReplaceEvent e )
+	{
+		if ( reentrant || (e.IsFinal && mxm_respectfinal) ) return;
+		for ( int i=0; i<ReplacementPools.Size(); i++ )
+		{
+			if ( ReplacementPools[i].Replacee != e.Replacee ) continue;
+			e.Replacement = ReplacementPools[i].GetReplacement(Random[mixmatch](0,ReplacementPools[i].Replacements.Size()-1));
+			if ( (e.Replacement != null) && (developer > 2) )
+				Console.Printf("Mix'n'Match: Replacing %s with %s",e.Replacee.GetClassName(),e.Replacement.GetClassName());
+			e.IsFinal = true;
+			return;
+		}
+	}
+
+	override void NetworkProcess( ConsoleEvent e )
+	{
+		if ( e.Name ~== "printpools" )
+		{
+			Console.Printf("================");
+			for ( int i=0; i<ReplacementPools.Size(); i++ )
+			{
+				Console.Printf("Replacement Pool for %s:",ReplacementPools[i].Replacee.GetClassName());
+				for ( int j=0; j<ReplacementPools[i].Replacements.Size(); j++ )
+					if ( ReplacementPools[i].GetReplacement(j) )
+						Console.Printf(" %s",ReplacementPools[i].GetReplacement(j).GetClassName());
+			}
+			Console.Printf("================");
+		}
+	}
+}

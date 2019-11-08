@@ -1,0 +1,15 @@
+AddOptionMenu "OptionsMenu"
+{
+	StaticText ""
+	Submenu "$S_MXMTITLE", "MXMOptions"
+}
+
+OptionMenu "MXMOptions"
+{
+	Title "$S_MXMTITLE"
+	Option "$S_MXMMONSTERS", "mxm_monsters", "YesNo"
+	Option "$S_MXMWEAPONS", "mxm_weapons", "YesNo"
+	Option "$S_MXMITEMS", "mxm_items", "YesNo"
+	Option "$S_MXMOTHERS", "mxm_others", "YesNo"
+	Option "$S_MXMVANILLA", "mxm_keepvanilla", "YesNo"
+}

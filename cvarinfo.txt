@@ -1,0 +1,5 @@
+server bool mxm_monsters = true;
+server bool mxm_weapons = true;
+server bool mxm_items = true;
+server bool mxm_others = false;
+server bool mxm_keepvanilla = false;
