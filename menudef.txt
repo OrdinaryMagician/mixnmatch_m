@@ -12,5 +12,5 @@ OptionMenu "MXMOptions"
 	Option "$S_MXMITEMS", "mxm_items", "YesNo"
 	Option "$S_MXMOTHERS", "mxm_others", "YesNo"
 	Option "$S_MXMVANILLA", "mxm_keepvanilla", "YesNo"
-	Option "$S_MXMFINAL, "mxm_respectfinal", "YesNo"
+	Option "$S_MXMFINAL", "mxm_respectfinal", "YesNo"
 }

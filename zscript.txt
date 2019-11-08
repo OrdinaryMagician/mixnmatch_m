@@ -45,23 +45,25 @@ Class MixAndMatch : EventHandler
 		Class<Actor> CReplacee, CReplacement;
 		for ( int i=0; i<AllActorClasses.Size(); i++ )
 		{
+			// ease of writing
+			let c = AllActorClasses[i];
 			// check validity
-			let a = GetDefaultByType(AllActorClasses[i]);
+			let a = GetDefaultByType(c);
 			if ( a.bISMONSTER && !mxm_monsters ) continue;
-			else if ( ((a is 'Weapon') || (a is 'Ammo')) && !mxm_weapons ) continue;
-			else if ( (a is 'Inventory') && !mxm_items ) continue;
+			else if ( ((c is 'Weapon') || (c is 'Ammo')) && !mxm_weapons ) continue;
+			else if ( (c is 'Inventory') && !mxm_items ) continue;
 			else if ( !mxm_others ) continue;
 			// check if it already does have a replacement
-			let r = Actor.GetReplacement(AllActorClasses[i]);
-			if ( r && (r != AllActorClasses[i]) )
+			let r = Actor.GetReplacement(c);
+			if ( r && (r != c) )
 			{
-				CReplacee = AllActorClasses[i];
+				CReplacee = c;
 				CReplacement = r;
 			}
 			else
 			{
-				CReplacee = Actor.GetReplacee(AllActorClasses[i]);
-				CReplacement = AllActorClasses[i];
+				CReplacee = Actor.GetReplacee(c);
+				CReplacement = c;
 				if ( (CReplacee == null) || (CReplacee == CReplacement) ) continue;
 				// safeguard, don't add non-slotnumber weapons to the pool
 				if ( CReplacement is 'Weapon' )
