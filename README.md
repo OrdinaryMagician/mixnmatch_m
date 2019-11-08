@@ -11,7 +11,7 @@ re-adding vanilla things into the mix.
 
 ### The options
 
-By default, the mod will make pools for absolutely any actor, but there are
+By default, the mod will make pools for monsters and items, but there are
 some lil' on/off switches to tweak this, separated in "Weapons/Ammo",
 "Monsters", "Items" and "Everything Else". The option to add vanilla stuff to
 the pool is also there. Other than that, that's pretty much all there is to

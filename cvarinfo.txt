@@ -3,3 +3,4 @@ server bool mxm_weapons = true;
 server bool mxm_items = true;
 server bool mxm_others = false;
 server bool mxm_keepvanilla = false;
+server bool mxm_respectfinal = true;

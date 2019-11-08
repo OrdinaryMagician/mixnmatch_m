@@ -5,6 +5,7 @@ S_MXMWEAPONS = "Mix Weapons/Ammo";
 S_MXMITEMS = "Mix Items";
 S_MXMOTHERS = "Mix Other Actors";
 S_MXMVANILLA = "Keep Vanilla Actors";
+S_MXMFINAL = "Respect ZScript Final Replacements";
 
 [es]
 S_MXMTITLE = "Opciones de Mix'n'Match";
@@ -13,3 +14,4 @@ S_MXMWEAPONS = "Mezclar Armas/Munición";
 S_MXMITEMS = "Mezclar Items";
 S_MXMOTHERS = "Mezclar Otros Actores";
 S_MXMVANILLA = "Preservar Actores Vanilla";
+S_MXMFINAL = "Respetar Reemplazo Definitivo por ZScript";
